@@ -1,0 +1,22 @@
+body {
+	margin:0;
+	border:0;
+	padding:0;
+	width:100%;
+	height:100%;
+
+	background-color:rgb(52, 52, 52);
+}
+
+#render {
+	position:absolute;
+	margin:auto;
+	border:2px inset #AAA;
+	padding:1px;
+	width:800px;
+	height:600px;
+
+	left:0; right:0; top:0; bottom:0;
+
+	background-color:rgb(26, 26, 26);
+}
