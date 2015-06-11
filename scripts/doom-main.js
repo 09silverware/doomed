@@ -16,8 +16,11 @@ var _Renderer = new PIXI.WebGLRenderer(800,600,{autoResize:true,view:_RenderTarg
 var Goat = new PIXI.Sprite(_Images.goat);
 Goat.pivot.x = Goat.pivot.y = 0.5;
 Goat.x = 400; Goat.y = 300;
+var Trust = new PIXI.Text("In Josh We Trust.",{font:'9px Arial',fill:0x30a030});
+Trust.x = 725; Trust.y = 590;
 
 _Scenes.test = new PIXI.Container;
+_Scenes.test.addChild(Trust);
 _Scenes.test.addChild(Goat);
 
 function Loop() {
