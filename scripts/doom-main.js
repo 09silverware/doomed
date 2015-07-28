@@ -1,33 +1,98 @@
 var _Images = {};
-var _loader = new function() {
+var _Loader = new function() {
 	var self = this;
 
 	self.loadImage = function(name,image) {
 		_Images[name] = new PIXI.Texture.fromImage(image);
 	}
 }
-
-_loader.loadImage("goat","images/goatWhite.png")
+_Mouse = { x:0, y:0 };
+_Keyboard = {};
 var _Scenes = {};
-var _RenderTarget = document.getElementById("render");
+var _RenderTarget = null;
 var _Renderer = new PIXI.WebGLRenderer(800,600,{autoResize:true,view:_RenderTarget,transparent:true});
+var _Player = {};
 
+$(document).ready(Init);
 
-var Goat = new PIXI.Sprite(_Images.goat);
-Goat.pivot.x = Goat.pivot.y = 0.5;
-Goat.x = 400; Goat.y = 300;
-var Trust = new PIXI.Text("In Josh We Trust.",{font:'9px Arial',fill:0x30a030});
-Trust.x = 725; Trust.y = 590;
+function Init() {
+	_Loader.loadImage("player","images/player.png");
+	_RenderTarget = document.getElementById("render");0
+	_Player = new Object(_Images.player,40,40);
+	_Scenes.test = new PIXI.Container;
+	_Scenes.test.addChild(_Player.sprite);
 
-_Scenes.test = new PIXI.Container;
-_Scenes.test.addChild(Trust);
-_Scenes.test.addChild(Goat);
+	_RenderTarget.onmousemove = function(e) {
+		var pos = _renderTarget.position();
+		_Mouse.x = e.pageX - pos.left;
+		_Mouse.y = e.pageY - pos.top;
+		return false;
+	}
+	_RenderTarget.onmousedown = function(e) {
+		var pos = _renderTarget.position();
+		_Mouse.x = e.pageX - pos.left;
+		_Mouse.y = e.pageY - pos.top;
+		_Mouse.left = (e.which==1?true:_Mouse.left);
+		_Mouse.middle = (e.which==2?true:_Mouse.middle);
+		_Mouse.right = (e.which==3?true:_Mouse.right);
+		return false;
+	}
+	_RenderTarget.onmouseup = function(e) {
+		var pos = _renderTarget.position();
+		_Mouse.x = e.pageX - pos.left;
+		_Mouse.y = e.pageY - pos.top;
+		_Mouse.left = (e.which==1?false:_Mouse.left);
+		_Mouse.middle = (e.which==2?false:_Mouse.middle);
+		_Mouse.right = (e.which==3?false:_Mouse.right);
+		return false;
+	}
+	_RenderTarget.onkeydown = function(e) {
+		var char = String.fromCharCode(e.keyCode || e.charCode)
+		_Keyboard[char] = true;
+		return false;
+	}
+	_RenderTarget.onkeyup = function(e) {
+		var char = String.fromCharCode(e.keyCode || e.charCode)
+		_Keyboard[char] = false;
+		return false;
+	}
+}
 
 function Loop() {
-	Goat.rotation += 0.01;
+	_Player.rotate( range(-1,pointDirection(_Player.x,_Player.y,_Mouse.x,_Mouse.y),1) );
+
+	if(_Keyboard["W"]){ _Player.move( 0,-1); }
+	if(_Keyboard["S"]){ _Player.move( 0, 1); }
+	if(_Keyboard["A"]){ _Player.move(-1, 0); }
+	if(_Keyboard["D"]){ _Player.move( 1, 0); }
 
 	_Renderer.render(_Scenes.test);
 	requestAnimationFrame(Loop);
 }
-
 Loop();
+
+function Object(sprite,x,y) {
+	var self = this;
+	self.move(x,y);
+	self.sprite = new PIXI.Sprite(sprite);
+
+	self.move = function(dx,dy) { self.position(self.x+dx,self.y+dy); }
+	self.position = function(x,y) {
+		self.x = x;
+		self.y = y;
+		self.sprite.x = x;
+		self.sprite.y = y;
+	}
+	self.rotate = function(da) { self.rotation(self.angle+da); }
+	self.rotation = function(angle) {
+		angle = angle%360; if(angle<0){ angle+=360; }
+		self.angle = angle;
+		self.sprite.rotation = angle;
+	}
+}
+
+// Math
+Math.radtodeg = 180/Math.pi;
+function pointDirection(ax,ay,bx,by) { return Math.atan2((bx-ax),(by-ay)) * Math.radtodeg; }
+function pointDistance(ax,ay,bx,by) { return Math.sqrt( Math.pow(ax-bx,2) + Math.pow(ay-by,2) ); }
+function range(min,val,max) { if(min>max){ var t=min; min=max; max=t; } return (val>max?max:(val<min?min:val)); }
